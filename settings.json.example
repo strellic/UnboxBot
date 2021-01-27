@@ -1,0 +1,16 @@
+{
+	"prefix": "u!",
+	"mongo": "mongodb://URL",
+	"dailyTimer": 10800,
+	"dailyDropTimer": 3600,
+	"dailyAmount": 1000.00,
+	"port": 3000,
+	"url": "https://example.com",
+	"admin": {
+		"user": "admin",
+		"password": "BCRYPT_PASSWORD"
+	},
+	"botName": "UnboxBot",
+	"webSecret": "random secret!",
+	"token": "discord bot token"
+}

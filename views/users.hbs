@@ -1,0 +1,92 @@
+<main class="page">
+    <section class="clean-block features">
+        <div class="container">
+            <div class="block-heading">
+                <h2 class="text-info">Users</h2>
+                {{#if error}}
+                    <div class="alert alert-danger" role="alert">
+                        {{error}}
+                    </div>
+                {{/if}}
+            </div>
+            <div class="col-md-12 search-table-col">
+                <span class="counter pull-right"></span>
+                <div class="table-responsive table table-hover results">
+                    <table id="usertable" class="table table-hover">
+                        <thead class="bill-header cs">
+                            <tr>
+                                <th id="trs-hd" class="col-lg-1" style="width:25%">Avatar</th>
+                                <th id="trs-hd" class="col-lg-2" style="width:50%">Username</th>
+                                <th id="trs-hd" class="col-lg-3" style="width:25%">Discord ID</th>
+                                <th id="trs-hd" class="col-lg-2">Money</th>
+                                <th id="trs-hd" class="col-lg-2">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each users}}
+                            <tr>
+                                <td>
+                                    <img src="{{this.avatar}}" style="width:128px; height:128px" />
+                                </td>
+                                <td>{{this.username}}</td>
+                                <td>{{this.id}}</td>
+                                <td>${{this.money}}</td>
+                                <td>
+                                    <button onclick="view(this)" class="btn btn-success" style="margin-left: 5px;" type="submit">
+                                        <i class="far fa-eye" style="font-size: 15px;"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                    <br />
+                    <div style="text-align: center">
+                        <button class="btn btn-success" type="button" onclick="userData()">
+                            <i class="fas fa-question"></i>View User Data
+                        </button>
+                        <br />
+                        <br />
+                        <a href="/api/logout">Log out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div id="dataModal" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">UserData</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p id="modalText">Modal body text goes here.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</main>
+<script>
+window.onload = () => {
+    $("#usertable").DataTable(); 
+}
+let view = (ele) => {
+    let id = ele.parentElement.parentElement.children[2].innerText;
+    location.href = `/user/${id}`;
+}
+let userData = () => {
+    $.post("/api/userData", (data) => {
+        let text = JSON.stringify(data, null, "\t");
+        text = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        text = text.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;').replace(/\n/g, "<br />");
+        $("#modalText").html(text);
+        $('#dataModal').modal();
+    });
+}
+</script>

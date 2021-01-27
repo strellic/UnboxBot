@@ -1,0 +1,410 @@
+<main class="page product-page">
+    <section class="clean-block clean-product dark">
+        <div class="container">
+            <div class="block-heading">
+                <h2 class="text-info">{{username}}'s Page</h2>
+            </div>
+            <div class="block-content">
+                <div class="product-info">
+                    <div class="row">
+                        <div class="col-md-6"><img class="img-fluid" src="{{avatar}}" width="100%"></div>
+                        <div class="col-md-6">
+                            <div class="info">
+                                <button class="btn btn-success" type="button" onclick="moneyFn()">
+                                    <i class="fas fa-dollar-sign"></i>Money
+                                </button>
+                                <button class="btn btn-primary" type="button" onclick="rarityFn()">
+                                    <i class="far fa-star"></i>Rarity
+                                </button>
+                                <button class="btn btn-warning" type="button" onclick="unboxFn()">
+                                    <i class="fas fa-box-open"></i>Unbox
+                                </button>
+                                <button class="btn btn-secondary" type="button" onclick="dropFn()">
+                                    <i class="fas fa-arrow-down"></i>Drop
+                                </button>
+                                <button class="btn btn-danger" type="button" onclick="crashFn()">
+                                    <i class="fas fa-bomb"></i>Crash
+                                </button>
+                                <button class="btn btn-dark" type="button" onclick="coinflipFn()">
+                                    <i class="fas fa-coins"></i>Coinflip
+                                </button>
+                                <button class="btn btn-primary" style="background-color: purple" type="button" onclick="rouletteFn()">
+                                    <i class="fas fa-dice"></i>Roulette
+                                </button>
+                                <button class="btn btn-light btn-half" type="button" onclick="resetDailyFn()">
+                                    <i class="fas fa-history"></i>Reset Daily
+                                </button>
+                                <button class="btn btn-light btn-half" type="button" onclick="resetDropFn()">
+                                    <i class="fas fa-history"></i>Reset Drop
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center">
+                    <a href="/">Go back</a>
+                </div>
+            </div>  
+        </div>
+    </section>
+</main>
+<script>
+let id = location.pathname.split("/").slice(-1)[0];
+
+let moneyFn = async () => {
+    let { value: money } = await Swal.fire({
+        title: 'Change money?',
+        icon: 'question',
+        input: 'text',
+        inputValue: '{{money}}',
+        showCloseButton: true,
+        showCancelButton: true,
+    });
+
+    if (money && money != '{{money}}') {
+        let newMoney = parseFloat(money).toFixed(2);
+
+        $.post("/api/money", {id: id, money: newMoney}, async (data) => {
+            if(data === "success") {
+                await Swal.fire({
+                    title: 'Money changed!',
+                    icon: 'success',
+                    text: `Money changed to $${newMoney}.`
+                });
+                location.reload();
+            }
+            else {
+                Swal.fire({
+                    title: 'Error',
+                    icon: 'error',
+                    text: data
+                });
+            }
+        });
+    }
+};
+
+let rarityFn = async () => {
+    let { value: rarity } = await Swal.fire({
+        title: 'Select rarity:',
+        input: 'select',
+        icon: 'question',
+        inputOptions: {
+            0: "Consumer Grade [1]",
+            1: "Industrial Grade [2]",
+            2: "Mil-Spec [3]",
+            3: "Restricted [4]",
+            4: "Classified [5]",
+            5: "Covert [6]",
+            6: "Contraband [7]"
+        },
+        inputPlaceholder: 'Select a rarity',
+        showCancelButton: true
+    });
+
+    if (rarity) {
+        $.post("/api/rarity", {id: id, rarity: rarity}, (data) => {
+            if(data === "success") {
+                Swal.fire({
+                    title: 'Rarity changed!',
+                    icon: 'success',
+                    text: `The next unboxing will contain an item with rarity ${parseInt(rarity) + 1}.`
+                });
+            }
+            else {
+                Swal.fire({
+                    title: 'Error',
+                    icon: 'error',
+                    text: data
+                });
+            }
+        });
+    }
+}
+
+let unboxFn = async () => {
+    let { value: item } = await Swal.fire({
+        title: 'Enter item to be unboxed:',
+        icon: 'question',
+        input: 'text',
+        inputPlaceholder: 'Ex: AWP | Dragon Lore',
+        showCancelButton: true
+    });
+
+    if(item) {
+        let { value: float } = await Swal.fire({
+            title: 'Select float:',
+            input: 'select',
+            icon: 'question',
+            inputOptions: {
+                "NO": "No float",
+                "FN": "Factory New",
+                "MW": "Minimal Wear",
+                "FT": "Field-Tested",
+                "WW": "Well-Worn",
+                "BS": "Battle-Scarred",
+            },
+            inputPlaceholder: 'Select a float',
+            showCancelButton: true
+        });
+
+        if(float) {
+            let { value: statTrak } = await Swal.fire({
+                title: 'StatTrak?',
+                input: 'checkbox',
+                inputValue: 0,
+                icon: 'question',
+                inputPlaceholder: 'StatTrak',
+            });
+
+            $.post("/api/unbox", {id: id, item: item, float: float, statTrak: statTrak}, (data) => {
+                console.log(data);
+                if(data === "success") {
+                    Swal.fire({
+                        title: 'Unboxing set!',
+                        icon: 'success',
+                        text: `The next unboxing will contain your specified item.`
+                    });
+                }
+                else {
+                    Swal.fire({
+                        title: 'Error',
+                        icon: 'error',
+                        text: data
+                    });
+                }
+            });
+        }
+    }
+}
+
+let dropFn = async () => {
+    let { value: item } = await Swal.fire({
+        title: 'Enter item to be dropped:',
+        icon: 'question',
+        input: 'text',
+        inputPlaceholder: 'Ex: M4A4 | Howl',
+        showCancelButton: true
+    });
+
+    if(item) {
+        let { value: float } = await Swal.fire({
+            title: 'Select float:',
+            input: 'select',
+            icon: 'question',
+            inputOptions: {
+                "NO": "No float",
+                "FN": "Factory New",
+                "MW": "Minimal Wear",
+                "FT": "Field-Tested",
+                "WW": "Well-Worn",
+                "BS": "Battle-Scarred",
+            },
+            inputPlaceholder: 'Select a float',
+            showCancelButton: true
+        });
+
+        if(float) {
+            let { value: statTrak } = await Swal.fire({
+                title: 'StatTrak?',
+                input: 'checkbox',
+                inputValue: 0,
+                icon: 'question',
+                inputPlaceholder: 'StatTrak',
+            });
+
+            $.post("/api/drop", {id: id, item: item, float: float, statTrak: statTrak}, (data) => {
+                console.log(data);
+                if(data === "success") {
+                    Swal.fire({
+                        title: 'Drop set!',
+                        icon: 'success',
+                        text: `The next drop will contain your specified item.`
+                    });
+                }
+                else {
+                    Swal.fire({
+                        title: 'Error',
+                        icon: 'error',
+                        text: data
+                    });
+                }
+            });
+        }
+    }
+}
+
+let crashFn = async () => {
+    let { value: crash } = await Swal.fire({
+        title: 'Enter crash multiplier:',
+        icon: 'question',
+        input: 'text',
+        inputPlaceholder: '1.0',
+        showCancelButton: true
+    });
+
+    if(crash && !isNaN(crash) && parseFloat(crash) >= 1.0) {
+        crash = parseFloat(parseFloat(crash).toFixed(1));
+        $.post("/api/crash", {id: id, crash: crash}, (data) => {
+            if(data === "success") {
+                Swal.fire({
+                    title: 'Next crash multiplier set!',
+                    icon: 'success',
+                    text: `The next crash game will go up to ${crash.toFixed(1)}x.`
+                });
+            }
+            else {
+                Swal.fire({
+                    title: 'Error',
+                    icon: 'error',
+                    text: data
+                });
+            }
+        });
+    }
+}
+
+let coinflipFn = async () => {
+    let { value: status } = await Swal.fire({
+        title: 'Heads / Tails?',
+        input: 'select',
+        icon: 'question',
+        inputOptions: {
+            "heads": "Heads",
+            "tails": "Tails",
+        },
+        inputPlaceholder: 'Heads / Tails?',
+        showCancelButton: true
+    });
+
+    if(status) {
+        $.post("/api/coinflip", {id: id, status: status}, (data) => {
+            if(data === "success") {
+                Swal.fire({
+                    title: 'Next coin flip set!',
+                    icon: 'success',
+                    text: `The next coin flip will be a ${status}.`
+                });
+            }
+            else {
+                Swal.fire({
+                    title: 'Error',
+                    icon: 'error',
+                    text: data
+                });
+             }
+        });
+    }
+}
+
+let rouletteFn = async () => {
+    let { value: roulette } = await Swal.fire({
+        title: 'Choose roulette number:',
+        input: 'select',
+        icon: 'question',
+         inputOptions: {
+            'Black': {
+                "black_2": "Black 2",
+                "black_4": "Black 4",
+                "black_6": "Black 6",
+                "black_8": "Black 8",
+                "black_10": "Black 10",
+                "black_11": "Black 11",
+                "black_13": "Black 13",
+                "black_15": "Black 15",
+                "black_17": "Black 17",
+                "black_20": "Black 20",
+                "black_22": "Black 22",
+                "black_24": "Black 24",
+                "black_26": "Black 26",
+                "black_28": "Black 28",
+                "black_29": "Black 29",
+                "black_31": "Black 31",
+                "black_33": "Black 33",
+                "black_35": "Black 35",
+            },
+            'Green': {
+                "green_0": "Green 0",
+            },
+            'Red': {
+                "red_1": "Red 1",
+                "red_3": "Red 3",
+                "red_5": "Red 5",
+                "red_7": "Red 7",
+                "red_9": "Red 9",
+                "red_12": "Red 12",
+                "red_14": "Red 14",
+                "red_16": "Red 16",
+                "red_18": "Red 18",
+                "red_19": "Red 19",
+                "red_21": "Red 21",
+                "red_23": "Red 23",
+                "red_25": "Red 25",
+                "red_27": "Red 27",
+                "red_30": "Red 30",
+                "red_32": "Red 30",
+                "red_34": "Red 34",
+                "red_36": "Red 36",
+            }
+        },
+        showCancelButton: true
+    });
+
+    if(roulette) {
+        $.post("/api/roulette", {id: id, roulette: roulette}, (data) => {
+            if(data === "success") {
+                Swal.fire({
+                    title: 'Roulette set!',
+                    icon: 'success',
+                    text: `The next roulette spin has been set successfully.`
+                });
+            }
+            else {
+                Swal.fire({
+                    title: 'Error',
+                    icon: 'error',
+                    text: data
+                });
+            }
+        });
+    }
+}
+
+let resetDailyFn = () => {
+    $.post("/api/resetDaily", {id: id}, (data) => {
+        if(data === "success") {
+            Swal.fire({
+                title: 'Daily timer reset!',
+                icon: 'success',
+                text: `The daily timer has been reset successfully.`
+            });
+        }
+        else {
+            Swal.fire({
+                title: 'Error',
+                icon: 'error',
+                text: data
+            });
+        }
+    });
+}
+
+let resetDropFn = () => {
+    $.post("/api/resetDrop", {id: id}, (data) => {
+        if(data === "success") {
+            Swal.fire({
+                title: 'Drop timer reset!',
+                icon: 'success',
+                text: `The drop timer has been reset successfully.`
+            });
+        }
+        else {
+            Swal.fire({
+                title: 'Error',
+                icon: 'error',
+                text: data
+            });
+        }
+    });
+}
+</script>
