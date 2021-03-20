@@ -18,7 +18,7 @@ When you unbox a case, the bot will generate an animated GIF to show you what it
 See them [here](SCREENSHOTS.md).
 
 ## Setup
-1. Make a copy of `settings.json.example` and rename it to `settings.json`. Then, edit the fields, linking the bot to your MongoDB instance and giving it a URL and port to run on. Use a website like [this](https://bcrypt-generator.com/) to generate a bcrypt password for the admin dashboard.
+1. Make a copy of `settings.json.example` and rename it to `settings.json`. Then, edit the fields, linking the bot to your MongoDB instance and giving it a URL and port to run on. Use a website like [this](https://gchq.github.io/CyberChef/#recipe=Bcrypt(12)&input=eW91cl9wYXNzd29yZA) to generate a bcrypt password for the admin dashboard.
 
 2. Create a new bot on the Discord Developer dashboard, and copy its token to your `settings.json`. Invite the bot to your server by creating an OAUTH url, and give it the bot scope permission.
 
